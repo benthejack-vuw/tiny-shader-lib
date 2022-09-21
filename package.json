@@ -1,0 +1,27 @@
+{
+  "name": "tinyShaderLib",
+  "version": "0.0.1",
+  "description": "a tiny dependency-free library for creating webGL shader passes. If you need to do more than simply scaffold chained full-screen shaders use threeJS.",
+  "main": "dist/index.js",
+  "author": "Ben Jack",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "build": "tsc && babel src -d lib"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/cli": "^7.18.10",
+    "@babel/core": "^7.19.1",
+    "@babel/plugin-transform-typescript": "^7.19.1",
+    "@babel/preset-env": "^7.19.1",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.38.0",
+    "eslint": "^8.0.1",
+    "eslint-config-standard-with-typescript": "^23.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-n": "^15.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "typescript": "*"
+  }
+}
