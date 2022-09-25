@@ -50,7 +50,7 @@ export default class ShaderPass implements Renderable{
       }
       this._shaderProgram.setUniform(
         'resolution',
-        [Math.ceil(gl.canvas.clientWidth), Math.ceil(gl.canvas.clientHeight)]
+        this.size,
       );
     });
 
@@ -113,12 +113,21 @@ export default class ShaderPass implements Renderable{
     }
 
     this._frameBuffers[this._currentFrameBuffer].bind();
+    this._gl.viewport(0, 0, this.size[0], this.size[1]);
     this._shaderProgram.render(this._geomRenderFn);
 
     if(renderToScreen) {
       this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
-      this._gl.viewport(0, 0, this.size[0], this.size[1]);
+      this._gl.viewport(0, 0, this._gl.drawingBufferWidth, this._gl.drawingBufferHeight);
+      this._shaderProgram.setUniform(
+        'resolution',
+        [this._gl.drawingBufferWidth, this._gl.drawingBufferHeight],
+      );
       this._shaderProgram.render(this._geomRenderFn);
+      this._shaderProgram.setUniform(
+        'resolution',
+        this.size,
+      );
     }
   }
 
