@@ -1,6 +1,6 @@
 import ShaderPass from "./ShaderPass";
 import MixPass from "./MixPass";
-import {Renderable, RenderOpts} from "./types";
+import {Renderable, RenderOpts} from "./index";
 import { InterpolationFunction } from "./InterpolationFunctions";
 
 interface RenderablePasses { [key: string]: Renderable };

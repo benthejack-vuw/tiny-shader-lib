@@ -1,5 +1,5 @@
 import { ShaderPass } from "./";
-import {Renderable, RenderOpts} from "./types";
+import {Renderable, RenderOpts} from "./index";
 
 export default class ShaderChain implements Renderable{
   private _outputPass: ShaderPass;

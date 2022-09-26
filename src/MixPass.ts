@@ -1,5 +1,5 @@
 import {crossfadeFrag, passThroughVert} from "./shaders";
-import {Renderable, RenderOpts} from "./types";
+import {Renderable, RenderOpts} from "./index";
 import ShaderPass from "./ShaderPass";
 import {clipspaceScreenTri} from "./glBasics";
 import {UniformObject} from "./glBasics/types";

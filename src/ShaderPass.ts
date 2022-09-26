@@ -1,8 +1,9 @@
 import {clipspaceScreenTri, createFBO, ShaderProgram} from "./glBasics";
 import {GeometryRenderFunction, UniformObject, UniformValue} from "./glBasics/types";
 import {FBO} from "./glBasics/createFBO";
-import {Renderable, RenderOpts} from "./types";
+import {Renderable, RenderOpts} from "./index";
 import {passThroughVert, screenTextureFrag} from "./shaders";
+import {blendFunctions, BlendMode} from "./glBasics/blending";
 
 interface ShaderPassOpts {
   doubleBuffer?: boolean;
@@ -119,6 +120,10 @@ export default class ShaderPass implements Renderable {
   public render({
     renderToScreen,
     blendPixels,
+    blendMode = BlendMode.NORMAL,
+    geomRenderFunction,
+    clear,
+    clearColor,
   }: RenderOpts = { renderToScreen: false }) {
     this.update();
 
@@ -126,12 +131,27 @@ export default class ShaderPass implements Renderable {
       this._currentFrameBuffer = (this._currentFrameBuffer + 1) % 2;
     }
 
+    // set blend mode
+    if(!renderToScreen) {
+      blendFunctions[blendMode](this._gl);
+    }
+
     this._frameBuffers[this._currentFrameBuffer].bind();
     this._gl.viewport(0, 0, this.size[0], this.size[1]);
-    this._shaderProgram.render(this._geomRenderFn);
+
+    if(clear) {
+      this._gl.clearColor(
+        clearColor?.r || 0,
+        clearColor?.g || 0,
+        clearColor?.b || 0,
+        clearColor?.a ?? 1
+      );
+      this._gl.clear(this._gl.COLOR_BUFFER_BIT);
+    }
+    this._shaderProgram.render(geomRenderFunction ?? this._geomRenderFn);
 
     if(renderToScreen) {
-      this.renderToScreen(blendPixels);
+      this.renderToScreen({blendPixels, clear, clearColor, blendMode, geomRenderFunction});
     }
   }
 
@@ -145,7 +165,7 @@ export default class ShaderPass implements Renderable {
     );
   }
 
-  private renderToScreen(blendPixels: boolean = true) {
+  private renderToScreen({blendPixels = true, clear, clearColor, blendMode}: RenderOpts) {
     const {
       bufferToScreen,
       bufferToScreenRect
@@ -162,11 +182,21 @@ export default class ShaderPass implements Renderable {
     );
 
     this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
+    this._gl.viewport(0, 0, this._gl.drawingBufferWidth, this._gl.drawingBufferHeight);
+    if(clear) {
+      this._gl.clearColor(
+        clearColor?.r ?? 1,
+        clearColor?.g ?? 1,
+        clearColor?.b ?? 1,
+        clearColor?.a ?? 1
+      );
+      this._gl.clear(this._gl.COLOR_BUFFER_BIT);
+    }
+
     bufferToScreen.bind();
     bufferToScreen.setUniform('map', currentTexture);
     bufferToScreen.setUniform('resolution', [this._gl.drawingBufferWidth, this._gl.drawingBufferHeight]);
-
-    this._gl.viewport(0, 0, this._gl.drawingBufferWidth, this._gl.drawingBufferHeight);
+    blendFunctions[blendMode](this._gl);
     bufferToScreen.render(bufferToScreenRect);
 
     this._gl.texParameteri(
