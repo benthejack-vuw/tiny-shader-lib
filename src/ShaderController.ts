@@ -1,6 +1,6 @@
 import ShaderPass from "./ShaderPass";
 import MixPass from "./MixPass";
-import { Renderable } from "./types";
+import {Renderable, RenderOpts} from "./types";
 import { InterpolationFunction } from "./InterpolationFunctions";
 
 interface RenderablePasses { [key: string]: Renderable };
@@ -61,8 +61,8 @@ export default class ShaderController implements Renderable {
     this._currentPass = this._transitions[transition];
   }
 
-  public render(renderToScreen: boolean = true) {
-    this._currentPass.render(renderToScreen);
+  public render(opts?: RenderOpts) {
+    this._currentPass.render(opts);
   }
 
   public outputTexture(): WebGLTexture {

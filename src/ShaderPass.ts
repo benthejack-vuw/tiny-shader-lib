@@ -1,7 +1,8 @@
-import {createFBO, ShaderProgram} from "./glBasics";
+import {clipspaceScreenTri, createFBO, ShaderProgram} from "./glBasics";
 import {GeometryRenderFunction, UniformObject, UniformValue} from "./glBasics/types";
 import {FBO} from "./glBasics/createFBO";
-import {Renderable} from "./types";
+import {Renderable, RenderOpts} from "./types";
+import {passThroughVert, screenTextureFrag} from "./shaders";
 
 interface ShaderPassOpts {
   doubleBuffer?: boolean;
@@ -9,7 +10,10 @@ interface ShaderPassOpts {
   height?: number;
 }
 
-export default class ShaderPass implements Renderable{
+export default class ShaderPass implements Renderable {
+  private static bufferToScreen?: ShaderProgram;
+  private static bufferToScreenRect?: GeometryRenderFunction;
+
   private _gl: WebGLRenderingContext;
   private _shaderProgram: ShaderProgram;
   private _geomRenderFn: GeometryRenderFunction;
@@ -55,6 +59,13 @@ export default class ShaderPass implements Renderable{
     });
 
     resizeObserver.observe(gl.canvas);
+  }
+
+  public setBufferTextureParam(parameter: GLenum, value: GLint) {
+    this._frameBuffers.forEach((fbo) => {
+      this._gl.bindTexture(this._gl.TEXTURE_2D, fbo.texture);
+      this._gl.texParameteri(this._gl.TEXTURE_2D, parameter, value);
+    });
   }
 
   public get size() {
@@ -105,7 +116,10 @@ export default class ShaderPass implements Renderable{
     this._updateFunctions.forEach((fn) => fn());
   }
 
-  public render(renderToScreen?: boolean) {
+  public render({
+    renderToScreen,
+    blendPixels,
+  }: RenderOpts = { renderToScreen: false }) {
     this.update();
 
     if(this._opts.doubleBuffer) {
@@ -117,17 +131,77 @@ export default class ShaderPass implements Renderable{
     this._shaderProgram.render(this._geomRenderFn);
 
     if(renderToScreen) {
-      this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
-      this._gl.viewport(0, 0, this._gl.drawingBufferWidth, this._gl.drawingBufferHeight);
-      this._shaderProgram.setUniform(
-        'resolution',
-        [this._gl.drawingBufferWidth, this._gl.drawingBufferHeight],
+      this.renderToScreen(blendPixels);
+    }
+  }
+
+  public renderToScreenAtCanvasResolution() {
+    this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
+    this._gl.viewport(0, 0, this._gl.drawingBufferWidth, this._gl.drawingBufferHeight);
+    this._shaderProgram.setUniformAround(
+      'resolution',
+      [this._gl.drawingBufferWidth, this._gl.drawingBufferHeight],
+      () => this._shaderProgram.render(this._geomRenderFn)
+    );
+  }
+
+  private renderToScreen(blendPixels: boolean = true) {
+    const {
+      bufferToScreen,
+      bufferToScreenRect
+    } = ShaderPass.bufferToScreenProgram(this._gl);
+
+    const currentTexture = this.outputTexture();
+    this._gl.bindTexture(this._gl.TEXTURE_2D, currentTexture);
+
+    const bufferBlending = this._gl.getTexParameter(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER);
+    this._gl.texParameteri(
+      this._gl.TEXTURE_2D,
+      this._gl.TEXTURE_MAG_FILTER,
+      blendPixels ? this._gl.LINEAR : this._gl.NEAREST
+    );
+
+    this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
+    bufferToScreen.bind();
+    bufferToScreen.setUniform('map', currentTexture);
+    bufferToScreen.setUniform('resolution', [this._gl.drawingBufferWidth, this._gl.drawingBufferHeight]);
+
+    this._gl.viewport(0, 0, this._gl.drawingBufferWidth, this._gl.drawingBufferHeight);
+    bufferToScreen.render(bufferToScreenRect);
+
+    this._gl.texParameteri(
+      this._gl.TEXTURE_2D,
+      this._gl.TEXTURE_MAG_FILTER,
+      bufferBlending
+    );
+  }
+
+  private static bufferToScreenProgram(gl: WebGLRenderingContext) {
+    if(!ShaderPass.bufferToScreen) {
+      const uniforms: UniformObject = {
+        map: {
+          type: 'texture2D',
+          value: null,
+        },
+        resolution: {
+          type: 'float2',
+          value: [gl.drawingBufferWidth, gl.drawingBufferHeight]
+        }
+      };
+
+      ShaderPass.bufferToScreen = new ShaderProgram(
+        gl,
+        passThroughVert(),
+        screenTextureFrag(),
+        uniforms,
       );
-      this._shaderProgram.render(this._geomRenderFn);
-      this._shaderProgram.setUniform(
-        'resolution',
-        this.size,
-      );
+
+      ShaderPass.bufferToScreenRect = clipspaceScreenTri(gl);
+    }
+
+    return {
+      bufferToScreen: ShaderPass.bufferToScreen,
+      bufferToScreenRect: ShaderPass.bufferToScreenRect,
     }
   }
 

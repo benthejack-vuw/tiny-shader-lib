@@ -1,5 +1,5 @@
 import {crossfadeFrag, passThroughVert} from "./shaders";
-import {Renderable} from "./types";
+import {Renderable, RenderOpts} from "./types";
 import ShaderPass from "./ShaderPass";
 import {clipspaceScreenTri} from "./glBasics";
 import {UniformObject} from "./glBasics/types";
@@ -52,15 +52,15 @@ export default class MixPass implements Renderable {
     return this._startTime != -1 && this._endTime != -1;
   }
 
-  public render(renderToScreen?: boolean) {
+  public render(opts?: RenderOpts) {
     if(!this.isRunning() || !this._fromPass || !this._toPass) return;
 
     let interpolationTime = Math.min(this._interpolation(Date.now(), this._startTime, this._endTime), 1);
     this._shaderPass.setUniform('time', interpolationTime);
 
-    this._fromPass.render(false);
-    this._toPass.render(false);
-    this._shaderPass.render(renderToScreen);
+    this._fromPass.render();
+    this._toPass.render();
+    this._shaderPass.render(opts);
 
     if(interpolationTime >= 1) {
       this._startTime = -1;

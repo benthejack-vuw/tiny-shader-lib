@@ -1,4 +1,9 @@
+export interface RenderOpts {
+  renderToScreen: boolean;
+  blendPixels?: boolean;
+}
+
 export interface Renderable {
-  render: (renderToScreen?: boolean) => void;
+  render: (opts?: RenderOpts) => void;
   outputTexture(): WebGLTexture;
 }

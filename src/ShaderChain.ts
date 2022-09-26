@@ -1,5 +1,5 @@
 import { ShaderPass } from "./";
-import { Renderable } from "./types";
+import {Renderable, RenderOpts} from "./types";
 
 export default class ShaderChain implements Renderable{
   private _outputPass: ShaderPass;
@@ -27,9 +27,12 @@ export default class ShaderChain implements Renderable{
     this._passes = this._passes.filter((pass) => !passes.includes(pass))
   }
 
-  public render(renderToScreen?: boolean) {
+  public render(opts?: RenderOpts) {
     this._passes.forEach(
-      (pass) => pass.render(renderToScreen && pass === this._outputPass)
+      (pass) => pass.render({
+        ...opts,
+        renderToScreen: opts.renderToScreen && pass === this._outputPass
+      })
     );
   }
 

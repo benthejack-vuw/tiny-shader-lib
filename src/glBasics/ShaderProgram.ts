@@ -149,6 +149,22 @@ export default class ShaderProgram {
     this._gl.deleteProgram(program);
   }
 
+  public setUniformAround(uniformName: string, value: UniformValue, around: () => void) {
+    const prevValue = this.getUniform(uniformName);
+
+    this.setUniform(
+      uniformName,
+      value,
+    );
+
+    around();
+
+    this.setUniform(
+      uniformName,
+      prevValue,
+    );
+  }
+
   public setUniform(uniformName: string, value: UniformValue) {
     if(typeof(this._uniforms[uniformName]) === 'undefined') {
       throw new Error(`the uniform ${uniformName} was not added when creating the shader program`);
