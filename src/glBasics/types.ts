@@ -1,4 +1,27 @@
-export type GeometryRenderFunction = (positionAttributeLocation: number, uvAttributeLocation?: number) => void;
+type RequirePosition<T extends {[key: string]: unknown}> = Omit<T, "position"> & Required<Pick<T, "position">>;
+
+export type AttributeArrayObject = RequirePosition<{
+  [key: string]: number[][],
+}>
+
+export type Attribute = {
+  buffer: WebGLBuffer,
+  size: number,
+};
+
+export type AttributeBufferObject = RequirePosition<{
+  [key: string]: Attribute,
+}>;
+
+export type LocationsObject = RequirePosition<{
+  [key: string]: number,
+}>;
+
+export type GeometryRenderFunction = (bufferObject: AttributeBufferObject, locations: LocationsObject) => void;
+export type Geometry = {
+  buffers: AttributeBufferObject,
+  render: GeometryRenderFunction,
+}
 
 export type IntegerListUniformType =
   'intv' | 'int2v' | 'int3v' | 'int4v';
@@ -21,7 +44,7 @@ export type GLUniformFunc =
   GLVecUniformFunc |
   GLListUniformFunc;
 
-export type UniformValue = number | number[] | number[][] | WebGLTexture;
+export type UniformValue = number | number[] | number[][] | WebGLTexture | null | undefined;
 
 export interface UniformObject {
   [uniformName: string]: {

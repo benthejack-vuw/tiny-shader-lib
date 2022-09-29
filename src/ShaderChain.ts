@@ -1,29 +1,32 @@
-import { ShaderPass } from "./";
 import {Renderable, RenderOpts} from "./index";
 
 export default class ShaderChain implements Renderable{
-  private _outputPass: ShaderPass;
-  private _passes: ShaderPass[];
+  private _outputPass: Renderable;
+  private _passes: Renderable[];
 
-  constructor(outputPass: ShaderPass, ...passes: ShaderPass[]) {
-    this._passes = [...passes, outputPass] || [outputPass];
+  constructor(passes: Renderable[]) {
+    this._passes = [...passes];
     this.dedupe();
+  }
+
+  set outputPass(pass: Renderable) {
+    this._outputPass = pass;
   }
 
   private dedupe() {
    this._passes = this._passes.reduce(
-     (deDuped:ShaderPass[], pass: ShaderPass) => (
+     (deDuped:Renderable[], pass: Renderable) => (
        deDuped.includes(pass) ? deDuped: [...deDuped, pass]
      ),
      []);
   }
 
-  public addPasses(...passes: ShaderPass[]) {
+  public addPasses(...passes: Renderable[]) {
     this._passes = [...this._passes, ...passes];
     this.dedupe();
   }
 
-  public removePasses(...passes: ShaderPass[]) {
+  public removePasses(...passes: Renderable[]) {
     this._passes = this._passes.filter((pass) => !passes.includes(pass))
   }
 
@@ -31,7 +34,7 @@ export default class ShaderChain implements Renderable{
     this._passes.forEach(
       (pass) => pass.render({
         ...opts,
-        renderToScreen: opts.renderToScreen && pass === this._outputPass
+        renderToScreen: opts?.renderToScreen && pass === this._outputPass
       })
     );
   }

@@ -5,14 +5,39 @@ import {
   GLUniformFunc,
   GLListUniformFunc,
   IntegerListUniformType,
-  FloatListUniformType, ListUniformType, GLVecUniformFunc, UniformValue
+  FloatListUniformType,
+  ListUniformType,
+  GLVecUniformFunc,
+  UniformValue,
+  Geometry,
+  Attribute,
+  AttributeBufferObject,
+  LocationsObject
 } from "./types";
 
 type UniformFunctions = {
-  [key in UniformType]: GLUniformFunc
+  [key in UniformType]: string
 };
 
-let uniformFunctions: UniformFunctions;
+let uniformFunctions: UniformFunctions = {
+    int: 'uniform1i',
+    int2: 'uniform2i',
+    int3: 'uniform3i',
+    int4: 'uniform4i',
+    intv: 'uniform1iv',
+    int2v: 'uniform2iv',
+    int3v: 'uniform3iv',
+    int4v: 'uniform4iv',
+    float: 'uniform1f',
+    float2: 'uniform2f',
+    float3: 'uniform3f',
+    float4: 'uniform4f',
+    floatv: 'uniform1fv',
+    float2v: 'uniform2fv',
+    float3v: 'uniform3fv',
+    float4v: 'uniform4fv',
+    texture2D: 'uniform1i',
+};
 
 function isIntegerListUniform(type: UniformType){
   return type === 'intv' || type === 'int2v' || type === 'int3v' || type === 'int4v';
@@ -43,6 +68,7 @@ export default class ShaderProgram {
   private _uniforms: UniformObject;
   private _attributeLocations: { [key: string]: number };
   private _updateUniforms: boolean;
+  private _deleted: boolean = false;
 
   constructor(gl: WebGLRenderingContext, vertex: string, fragment: string, uniforms: UniformObject = {}) {
     this._gl = gl;
@@ -59,35 +85,9 @@ export default class ShaderProgram {
         ))
     );
 
-
     this._updateUniforms = true;
 
-    this._attributeLocations = {
-      position: gl.getAttribLocation(this._shaderProgram, 'position'),
-      uv:       gl.getAttribLocation(this._shaderProgram, 'uv'),
-    }
-
-    if(!uniformFunctions) {
-      uniformFunctions = {
-        int: gl.uniform1i,
-        int2: gl.uniform2i,
-        int3: gl.uniform3i,
-        int4: gl.uniform4i,
-        intv: gl.uniform1iv,
-        int2v: gl.uniform2iv,
-        int3v: gl.uniform3iv,
-        int4v: gl.uniform4iv,
-        float: gl.uniform1f,
-        float2: gl.uniform2f,
-        float3: gl.uniform3f,
-        float4: gl.uniform4f,
-        floatv: gl.uniform1fv,
-        float2v: gl.uniform2fv,
-        float3v: gl.uniform3fv,
-        float4v: gl.uniform4fv,
-        texture2D: gl.uniform1i,
-      };
-    }
+    this._attributeLocations = {};
 
     this.updateUniforms();
   }
@@ -110,25 +110,31 @@ export default class ShaderProgram {
     //add defines to make webGL1 shaders work in a webGL2 context
     const globalDefines =
     `#version 300 es
-    #define attribute in
-    #define varying out
-    #define texture2D texture`;
+    #define texture2D texture
+    `;
 
-    const fragDefines = `
+    const vertexDefines =
+    `#define attribute in
+     #define varying out
+     `;
+
+    const fragDefines =
+    `#define varying in
     layout(location = 0) out highp vec4 pc_fragColor;
     #define gl_FragColor pc_fragColor
     `;
 
-    const vertexShader = this.createShader(this._gl.VERTEX_SHADER, globalDefines + vertex);
+    const vert = globalDefines + vertexDefines + vertex;
+    const vertexShader = this.createShader(this._gl.VERTEX_SHADER, vert);
 
     // make sure the fragment shader has a default precision
     const fragHasPrecision = !!fragment.match(/precision [a-z]+ float;/);
-    const fragWithPrecision = fragHasPrecision ? fragment : 'precision mediump float;\n' + fragment;
+    const fragPrecision = fragHasPrecision ? '' : 'precision mediump float;\n';
 
 
     const fragmentShader = this.createShader(
       this._gl.FRAGMENT_SHADER,
-      globalDefines + fragDefines + fragWithPrecision
+      globalDefines + fragPrecision + fragDefines + fragment
     );
 
     if(!vertexShader || !fragmentShader) {
@@ -195,13 +201,13 @@ export default class ShaderProgram {
     this.bind();
 
     if(isListUniform(type)) {
-      const setUniform =  uniformFunctions[type] as GLListUniformFunc;
+      const setUniform =  this._gl[uniformFunctions[type]] as GLListUniformFunc;
       setUniform.call(this._gl, location, data);
       return;
     }
 
     const args = Array.isArray(value) ? value as number[] : [value] as number[];
-    const setUniform =  uniformFunctions[type] as GLVecUniformFunc;
+    const setUniform =  this._gl[uniformFunctions[type]] as GLVecUniformFunc;
     setUniform.call(this._gl, location, ...args);
   }
 
@@ -229,19 +235,30 @@ export default class ShaderProgram {
   }
 
   public bind() {
-    if(ShaderProgram.CURRENT !== this) {
+   if(ShaderProgram.CURRENT !== this && !this._deleted) {
       this._gl.useProgram(this._shaderProgram);
       ShaderProgram.CURRENT = this;
-    }
+   }
   }
 
-  public render(geomRenderFn: GeometryRenderFunction) {
+  private updateAttributes(buffers: AttributeBufferObject) {
+    Object.entries(buffers).forEach(([attribName, attrib]) => {
+      if(typeof(this._attributeLocations[attribName]) === 'undefined') {
+        this._attributeLocations[attribName] = this._gl.getAttribLocation(this._shaderProgram, 'position');
+      }
+    })
+  }
+
+  public render(geom: Geometry) {
     this.bind();
     this.bindTextures();
-    geomRenderFn(this._attributeLocations.position, this._attributeLocations.uv);
+    this.updateAttributes(geom.buffers);
+
+    geom.render(geom.buffers, this._attributeLocations as LocationsObject);
   }
 
   public dispose() {
     this._gl.deleteProgram(this._shaderProgram);
+    this._deleted = true;
   }
 }

@@ -13,6 +13,7 @@ export default class MixPass implements Renderable {
   private _startTime: number = -1;
   private _endTime: number = -1;
   private _onComplete?: () => void;
+  private _deleted = false;
 
   constructor(gl: WebGLRenderingContext, mixFragShader: string = crossfadeFrag()) {
     const renderFunc = clipspaceScreenTri(gl);
@@ -53,7 +54,7 @@ export default class MixPass implements Renderable {
   }
 
   public render(opts?: RenderOpts) {
-    if(!this.isRunning() || !this._fromPass || !this._toPass) return;
+    if(!this.isRunning() || !this._fromPass || !this._toPass || this._deleted) return;
 
     let interpolationTime = Math.min(this._interpolation(Date.now(), this._startTime, this._endTime), 1);
     this._shaderPass.setUniform('time', interpolationTime);
@@ -71,5 +72,10 @@ export default class MixPass implements Renderable {
 
   public outputTexture(): WebGLTexture {
     return this._shaderPass.outputTexture();
+  }
+
+  public dispose(){
+    this._shaderPass.dispose();
+    this._deleted = true;
   }
 }

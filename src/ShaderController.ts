@@ -68,4 +68,9 @@ export default class ShaderController implements Renderable {
   public outputTexture(): WebGLTexture {
     return this._currentPass.outputTexture();
   }
+
+  public dispose() {
+    Object.values(this._passes).forEach((pass) => pass.dispose());
+    Object.values(this._transitions).forEach((transition) => transition.dispose())
+  }
 }

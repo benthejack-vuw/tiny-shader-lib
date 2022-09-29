@@ -37,11 +37,12 @@ export default class Vector {
     this._data[3] = w;
   }
 
-  public copy() {
-    return new Vector(...this._data);
+  public set(...args: number[]) {
+    args?.forEach((val, idx) => this._data[idx] = val);
+    return this;
   }
 
-  public set(other: Vector) {
+  public copy(other: Vector) {
     const longest = Vector.mostComponents(this, other);
     longest.data.forEach((_, idx) => this._data[idx] = other[idx] || 0);
     return this;

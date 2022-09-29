@@ -1,9 +1,10 @@
-import {clipspaceScreenTri, createFBO, ShaderProgram} from "./glBasics";
-import {GeometryRenderFunction, UniformObject, UniformValue} from "./glBasics/types";
+import {clipspaceScreenTri, createFBO, Geometry, ShaderProgram} from "./glBasics";
+import {UniformObject, UniformValue} from "./glBasics/types";
 import {FBO} from "./glBasics/createFBO";
 import {Renderable, RenderOpts} from "./index";
 import {passThroughVert, screenTextureFrag} from "./shaders";
 import {blendFunctions, BlendMode} from "./glBasics/blending";
+import {Color} from "./math";
 
 interface ShaderPassOpts {
   doubleBuffer?: boolean;
@@ -12,12 +13,12 @@ interface ShaderPassOpts {
 }
 
 export default class ShaderPass implements Renderable {
-  private static bufferToScreen?: ShaderProgram;
-  private static bufferToScreenRect?: GeometryRenderFunction;
+  private bufferToScreen?: ShaderProgram;
+  private bufferToScreenRect?: Geometry;
 
   private _gl: WebGLRenderingContext;
   private _shaderProgram: ShaderProgram;
-  private _geomRenderFn: GeometryRenderFunction;
+  private _geom: Geometry;
   private _frameBuffers?: FBO[];
   private _currentFrameBuffer: number = 0;
   private _opts: ShaderPassOpts;
@@ -27,23 +28,36 @@ export default class ShaderPass implements Renderable {
     gl: WebGLRenderingContext,
     vertexShader: string,
     fragmentShader: string,
-    geomRenderFn: GeometryRenderFunction,
+    geometry: Geometry,
     uniforms: UniformObject = {},
     opts: ShaderPassOpts = { doubleBuffer: false }
   ) {
     this._opts = opts;
     this._gl = gl;
 
+    //this._opts.doubleBuffer = fragmentShader.includes('backBuffer') || this._opts.doubleBuffer;
+
     const uniformsWithResolution: UniformObject = {
       ...uniforms,
       resolution: {
         type: 'float2',
         value: this.size
-      }
+      },
+      //add backBuffer uniform if the doubleBuffer parameter is set
+      ...(
+      opts.doubleBuffer
+        ? {
+            backBuffer: {
+              type: 'texture2D',
+              value: null,
+            }
+          }
+        : {}
+      )
     }
 
     this._shaderProgram = new ShaderProgram(gl, vertexShader, fragmentShader, uniformsWithResolution);
-    this._geomRenderFn = geomRenderFn;
+    this._geom = geometry;
 
     this.buildFrameBuffers();
 
@@ -117,17 +131,33 @@ export default class ShaderPass implements Renderable {
     this._updateFunctions.forEach((fn) => fn());
   }
 
+  public clear(clearColor: Color) {
+    this._gl.clearColor(
+      clearColor?.r || 0,
+      clearColor?.g || 0,
+      clearColor?.b || 0,
+      clearColor?.a ?? 1
+    );
+
+    this._frameBuffers.forEach((fb) => {
+      fb.bind();
+      this._gl.viewport(0, 0, this.size[0], this.size[1]);
+      this._gl.clear(this._gl.COLOR_BUFFER_BIT);
+    });
+  }
+
   public render({
     renderToScreen,
     blendPixels,
     blendMode = BlendMode.NORMAL,
-    geomRenderFunction,
+    geometry,
     clear,
     clearColor,
   }: RenderOpts = { renderToScreen: false }) {
     this.update();
 
     if(this._opts.doubleBuffer) {
+      this._shaderProgram.setUniform('backBuffer', this._frameBuffers[this._currentFrameBuffer].texture);
       this._currentFrameBuffer = (this._currentFrameBuffer + 1) % 2;
     }
 
@@ -136,22 +166,16 @@ export default class ShaderPass implements Renderable {
       blendFunctions[blendMode](this._gl);
     }
 
+    if(clear) {
+      this.clear(clearColor);
+    }
+
     this._frameBuffers[this._currentFrameBuffer].bind();
     this._gl.viewport(0, 0, this.size[0], this.size[1]);
-
-    if(clear) {
-      this._gl.clearColor(
-        clearColor?.r || 0,
-        clearColor?.g || 0,
-        clearColor?.b || 0,
-        clearColor?.a ?? 1
-      );
-      this._gl.clear(this._gl.COLOR_BUFFER_BIT);
-    }
-    this._shaderProgram.render(geomRenderFunction ?? this._geomRenderFn);
+    this._shaderProgram.render(geometry ?? this._geom);
 
     if(renderToScreen) {
-      this.renderToScreen({blendPixels, clear, clearColor, blendMode, geomRenderFunction});
+      this.renderToScreen({blendPixels, clear, clearColor, blendMode});
     }
   }
 
@@ -161,7 +185,7 @@ export default class ShaderPass implements Renderable {
     this._shaderProgram.setUniformAround(
       'resolution',
       [this._gl.drawingBufferWidth, this._gl.drawingBufferHeight],
-      () => this._shaderProgram.render(this._geomRenderFn)
+      () => this._shaderProgram.render(this._geom)
     );
   }
 
@@ -169,7 +193,7 @@ export default class ShaderPass implements Renderable {
     const {
       bufferToScreen,
       bufferToScreenRect
-    } = ShaderPass.bufferToScreenProgram(this._gl);
+    } = this.bufferToScreenProgram(this._gl);
 
     const currentTexture = this.outputTexture();
     this._gl.bindTexture(this._gl.TEXTURE_2D, currentTexture);
@@ -183,11 +207,12 @@ export default class ShaderPass implements Renderable {
 
     this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
     this._gl.viewport(0, 0, this._gl.drawingBufferWidth, this._gl.drawingBufferHeight);
+
     if(clear) {
       this._gl.clearColor(
-        clearColor?.r ?? 1,
-        clearColor?.g ?? 1,
-        clearColor?.b ?? 1,
+        clearColor?.r || 0,
+        clearColor?.g || 0,
+        clearColor?.b || 0,
         clearColor?.a ?? 1
       );
       this._gl.clear(this._gl.COLOR_BUFFER_BIT);
@@ -206,8 +231,8 @@ export default class ShaderPass implements Renderable {
     );
   }
 
-  private static bufferToScreenProgram(gl: WebGLRenderingContext) {
-    if(!ShaderPass.bufferToScreen) {
+  private bufferToScreenProgram(gl: WebGLRenderingContext) {
+    if(!this.bufferToScreen) {
       const uniforms: UniformObject = {
         map: {
           type: 'texture2D',
@@ -219,19 +244,19 @@ export default class ShaderPass implements Renderable {
         }
       };
 
-      ShaderPass.bufferToScreen = new ShaderProgram(
+      this.bufferToScreen = new ShaderProgram(
         gl,
         passThroughVert(),
         screenTextureFrag(),
         uniforms,
       );
 
-      ShaderPass.bufferToScreenRect = clipspaceScreenTri(gl);
+      this.bufferToScreenRect = clipspaceScreenTri(gl);
     }
 
     return {
-      bufferToScreen: ShaderPass.bufferToScreen,
-      bufferToScreenRect: ShaderPass.bufferToScreenRect,
+      bufferToScreen: this.bufferToScreen,
+      bufferToScreenRect: this.bufferToScreenRect,
     }
   }
 
