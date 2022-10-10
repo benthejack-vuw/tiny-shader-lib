@@ -1,29 +1,24 @@
 import {Renderable, RenderOpts} from "./index";
+import {UpdateFunctions} from "./UpdateFunctions";
 
-export default class ShaderChain implements Renderable{
+export default class ShaderChain extends UpdateFunctions implements Renderable {
   private _outputPass: Renderable;
   private _passes: Renderable[];
 
   constructor(passes: Renderable[]) {
+    super();
     this._passes = [...passes];
-    this.dedupe();
+    if(passes.length > 0) {
+      this._outputPass = this._passes[this._passes.length - 1];
+    }
   }
 
   set outputPass(pass: Renderable) {
     this._outputPass = pass;
   }
 
-  private dedupe() {
-   this._passes = this._passes.reduce(
-     (deDuped:Renderable[], pass: Renderable) => (
-       deDuped.includes(pass) ? deDuped: [...deDuped, pass]
-     ),
-     []);
-  }
-
   public addPasses(...passes: Renderable[]) {
     this._passes = [...this._passes, ...passes];
-    this.dedupe();
   }
 
   public removePasses(...passes: Renderable[]) {
@@ -31,6 +26,7 @@ export default class ShaderChain implements Renderable{
   }
 
   public render(opts?: RenderOpts) {
+    this.update();
     this._passes.forEach(
       (pass) => pass.render({
         ...opts,

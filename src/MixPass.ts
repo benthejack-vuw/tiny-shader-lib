@@ -4,8 +4,9 @@ import ShaderPass from "./ShaderPass";
 import {clipspaceScreenTri} from "./glBasics";
 import {UniformObject} from "./glBasics/types";
 import {InterpolationFunction, linearInterpolation} from "./InterpolationFunctions";
+import {UpdateFunctions} from "./UpdateFunctions";
 
-export default class MixPass implements Renderable {
+export default class MixPass extends UpdateFunctions implements Renderable {
   private _shaderPass: ShaderPass;
   private _fromPass?: Renderable;
   private _toPass?: Renderable;
@@ -16,6 +17,7 @@ export default class MixPass implements Renderable {
   private _deleted = false;
 
   constructor(gl: WebGLRenderingContext, mixFragShader: string = crossfadeFrag()) {
+    super();
     const renderFunc = clipspaceScreenTri(gl);
     const uniforms: UniformObject = {
       from: { type: 'texture2D', value: null },
@@ -55,6 +57,7 @@ export default class MixPass implements Renderable {
 
   public render(opts?: RenderOpts) {
     if(!this.isRunning() || !this._fromPass || !this._toPass || this._deleted) return;
+    this.update();
 
     let interpolationTime = Math.min(this._interpolation(Date.now(), this._startTime, this._endTime), 1);
     this._shaderPass.setUniform('time', interpolationTime);

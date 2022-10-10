@@ -2,12 +2,12 @@ import ShaderPass from "./ShaderPass";
 import MixPass from "./MixPass";
 import {Renderable, RenderOpts} from "./index";
 import { InterpolationFunction } from "./InterpolationFunctions";
+import {UpdateFunctions} from "./UpdateFunctions";
 
 interface RenderablePasses { [key: string]: Renderable };
 interface TransitionPasses { [key: string]: MixPass };
 
-
-export default class ShaderController implements Renderable {
+export default class ShaderController extends UpdateFunctions implements Renderable {
   private _gl: WebGLRenderingContext;
   private _passes: RenderablePasses;
   private _transitions: TransitionPasses;
@@ -15,6 +15,7 @@ export default class ShaderController implements Renderable {
   private _nextPass: Renderable;
 
   constructor(gl: WebGLRenderingContext, renderablePasses?: RenderablePasses) {
+    super();
     this._gl = gl;
     this._passes = renderablePasses || {};
     this._transitions = {

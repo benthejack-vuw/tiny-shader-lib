@@ -5,14 +5,16 @@ import {Renderable, RenderOpts} from "./index";
 import {passThroughVert, screenTextureFrag} from "./shaders";
 import {blendFunctions, BlendMode} from "./glBasics/blending";
 import {Color} from "./math";
+import {UpdateFunctions} from "./UpdateFunctions";
 
 interface ShaderPassOpts {
   doubleBuffer?: boolean;
   width?: number;
   height?: number;
+  dataType?: number;
 }
 
-export default class ShaderPass implements Renderable {
+export default class ShaderPass extends UpdateFunctions implements Renderable {
   private bufferToScreen?: ShaderProgram;
   private bufferToScreenRect?: Geometry;
 
@@ -22,7 +24,6 @@ export default class ShaderPass implements Renderable {
   private _frameBuffers?: FBO[];
   private _currentFrameBuffer: number = 0;
   private _opts: ShaderPassOpts;
-  private _updateFunctions: Array<() => void> = [];
 
   constructor(
     gl: WebGLRenderingContext,
@@ -32,6 +33,7 @@ export default class ShaderPass implements Renderable {
     uniforms: UniformObject = {},
     opts: ShaderPassOpts = { doubleBuffer: false }
   ) {
+    super();
     this._opts = opts;
     this._gl = gl;
 
@@ -94,10 +96,10 @@ export default class ShaderPass implements Renderable {
     const { width, height, doubleBuffer } = this._opts;
 
     this._frameBuffers = [];
-    this._frameBuffers.push(createFBO(this._gl, width, height))
+    this._frameBuffers.push(createFBO(this._gl, width, height, this._opts.dataType))
 
     if(doubleBuffer) {
-      this._frameBuffers.push(createFBO(this._gl, width, height))
+      this._frameBuffers.push(createFBO(this._gl, width, height, this._opts.dataType))
     }
   }
 
@@ -111,24 +113,12 @@ export default class ShaderPass implements Renderable {
     });
   }
 
-  public addUpdateFunction(updateFunction: () => void) {
-    this._updateFunctions.push(updateFunction);
-  }
-
-  public removeUpdateFunction(updateFunction: () => void) {
-    this._updateFunctions = this._updateFunctions.filter((fn) => fn !== updateFunction);
-  }
-
   public getUniform(uniform: string) {
     return this._shaderProgram.getUniform(uniform)
   }
 
   public setUniform(uniform: string, value: UniformValue) {
     return this._shaderProgram.setUniform(uniform, value);
-  }
-
-  private update() {
-    this._updateFunctions.forEach((fn) => fn());
   }
 
   public clear(clearColor: Color) {

@@ -44,7 +44,7 @@ export default class Vector {
 
   public copy(other: Vector) {
     const longest = Vector.mostComponents(this, other);
-    longest.data.forEach((_, idx) => this._data[idx] = other[idx] || 0);
+    longest.data.forEach((_, idx) => this._data[idx] = other.data[idx] || 0);
     return this;
   }
 

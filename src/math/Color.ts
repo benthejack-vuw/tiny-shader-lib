@@ -48,7 +48,7 @@ export default class Color extends Vec {
   }
 
   public set a(a: number) {
-    this._data[0] = a;
+    this._data[3] = a;
   }
 
   public setFromHex(hex: string) {
@@ -59,7 +59,6 @@ export default class Color extends Vec {
       });
 
       var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-
       if(result) {
         this.r = parseInt(result[1], 16)/255;
         this.g = parseInt(result[2], 16)/255;

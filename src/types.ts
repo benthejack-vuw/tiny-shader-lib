@@ -1,5 +1,5 @@
 import { BlendMode } from "./glBasics/blending";
-import { Geometry } from "./glBasics";
+import {Geometry, UniformObject, UniformValue} from "./glBasics";
 import { Color } from "./math";
 
 export interface RenderOpts {
@@ -15,4 +15,6 @@ export interface Renderable {
   render: (opts?: RenderOpts) => void;
   outputTexture(): WebGLTexture;
   dispose(): void;
+  addUpdateFunction(fn: () => void): void;
+  removeUpdateFunction(fn: () => void): void;
 }
