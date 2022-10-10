@@ -46,6 +46,10 @@ export type GLUniformFunc =
 
 export type UniformValue = number | number[] | number[][] | WebGLTexture | null | undefined;
 
+export interface UniformValues {
+  [uniformName: string]: UniformValue;
+}
+
 export interface UniformObject {
   [uniformName: string]: {
     location?: WebGLUniformLocation,

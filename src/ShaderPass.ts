@@ -1,4 +1,12 @@
-import {clipspaceScreenTri, createFBO, Geometry, ShaderProgram, blendFunctions, BlendMode} from "./glBasics/index";
+import {
+  clipspaceScreenTri,
+  createFBO,
+  Geometry,
+  ShaderProgram,
+  blendFunctions,
+  BlendMode,
+  UniformValues
+} from "./glBasics/index";
 import {UniformObject, UniformValue} from "./glBasics/types";
 import {FBO} from "./glBasics/createFBO";
 import {Renderable, RenderOpts} from "./index";
@@ -118,6 +126,10 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
 
   public setUniform(uniform: string, value: UniformValue) {
     return this._shaderProgram.setUniform(uniform, value);
+  }
+
+  public setUniforms(uniformValues: UniformValues) {
+    return this._shaderProgram.setUniforms(uniformValues);
   }
 
   public clear(clearColor: Color) {

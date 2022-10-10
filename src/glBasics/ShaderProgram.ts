@@ -12,7 +12,7 @@ import {
   Geometry,
   Attribute,
   AttributeBufferObject,
-  LocationsObject
+  LocationsObject, UniformValues
 } from "./types";
 
 type UniformFunctions = {
@@ -180,6 +180,10 @@ export default class ShaderProgram {
     this._uniforms[uniformName].data = listData(this._uniforms[uniformName]);
 
     this.updateUniform(uniformName);
+  }
+
+  public setUniforms(uniforms: UniformValues) {
+    Object.entries(uniforms).forEach(([name, value]) => this.setUniform(name, value));
   }
 
   public getUniform(uniformName: string) {
