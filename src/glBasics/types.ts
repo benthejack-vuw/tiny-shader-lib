@@ -44,7 +44,7 @@ export type GLUniformFunc =
   GLVecUniformFunc |
   GLListUniformFunc;
 
-export type UniformValue = number | number[] | number[][] | WebGLTexture | null | undefined;
+export type UniformValue = number | number[] | number[][] | string | string[] | WebGLTexture | null | undefined;
 
 export interface UniformValues {
   [uniformName: string]: UniformValue;

@@ -14,6 +14,7 @@ import {
   AttributeBufferObject,
   LocationsObject, UniformValues
 } from "./types";
+import {Color} from "../math";
 
 type UniformFunctions = {
   [key in UniformType]: string

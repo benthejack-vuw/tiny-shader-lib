@@ -1,7 +1,13 @@
 const createTexture = (gl: WebGLRenderingContext | WebGL2RenderingContext, width?: number, height?: number, textureType?: number) => {
   const type = typeof(textureType) === 'undefined' ? gl.UNSIGNED_BYTE : textureType;
 
-  // if(type === (gl as WebGL2RenderingContext).RGBA32F) {
+  const texture = gl.createTexture();
+  const TextureWidth = width || gl.drawingBufferWidth;
+  const TextureHeight = height || gl.drawingBufferHeight;
+
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  if(textureType === gl.FLOAT) {
     const ext = gl.getExtension("EXT_color_buffer_float");
     if (!ext) {
       alert("need EXT_color_buffer_float");
@@ -13,16 +19,7 @@ const createTexture = (gl: WebGLRenderingContext | WebGL2RenderingContext, width
       alert("need OES_texture_float_linear");
       return;
     }
-  // }
-    // create to render to
-  const texture = gl.createTexture();
-  const TextureWidth = width || gl.drawingBufferWidth;
-  const TextureHeight = height || gl.drawingBufferHeight;
 
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-
-  if(textureType === gl.FLOAT) {
-    console.log('float texture')
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,

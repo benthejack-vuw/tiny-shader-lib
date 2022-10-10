@@ -57,6 +57,7 @@ export default class ShaderController extends UpdateFunctions implements Rendera
     const endFunc = () => {
       this._currentPass = this._passes[name]
     };
+    
     this._transitions[transition].mix(this._currentPass, this._passes[name], duration, interpolationFunction, endFunc);
     this._nextPass = this._passes[name];
     this._currentPass = this._transitions[transition];
