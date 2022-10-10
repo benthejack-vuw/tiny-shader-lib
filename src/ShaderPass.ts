@@ -1,10 +1,9 @@
-import {clipspaceScreenTri, createFBO, Geometry, ShaderProgram} from "./glBasics";
+import {clipspaceScreenTri, createFBO, Geometry, ShaderProgram, blendFunctions, BlendMode} from "./glBasics/index";
 import {UniformObject, UniformValue} from "./glBasics/types";
 import {FBO} from "./glBasics/createFBO";
 import {Renderable, RenderOpts} from "./index";
-import {passThroughVert, screenTextureFrag} from "./shaders";
-import {blendFunctions, BlendMode} from "./glBasics/blending";
-import {Color} from "./math";
+import {passThroughVert, screenTextureFrag} from "./shaders/index";
+import {Color} from "./math/index";
 import {UpdateFunctions} from "./UpdateFunctions";
 
 interface ShaderPassOpts {

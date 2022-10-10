@@ -1,5 +1,4 @@
-import { BlendMode } from "./glBasics/blending";
-import {Geometry, UniformObject, UniformValue} from "./glBasics";
+import { BlendMode, Geometry } from "./glBasics/index";
 import { Color } from "./math";
 
 export interface RenderOpts {
