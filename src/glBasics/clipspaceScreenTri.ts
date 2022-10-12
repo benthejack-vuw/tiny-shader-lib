@@ -1,5 +1,5 @@
-import { AttributeArrayObject } from "./types";
-import createGeometry from "./createGeometry";
+import { AttributeArrayObject } from "./types.js";
+import createGeometry from "./createGeometry.js";
 
 const clipspaceScreenTri = (gl: WebGLRenderingContext) => {
   const attribs: AttributeArrayObject = {

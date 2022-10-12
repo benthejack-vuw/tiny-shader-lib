@@ -1,8 +1,8 @@
-export { default as GLCanvas } from './GLCanvas';
-export { default as ShaderProgram } from './ShaderProgram';
-export { default as clipspaceScreenTri } from './clipspaceScreenTri';
-export { default as createTexture } from './createTexture';
-export { default as createFBO } from './createFBO';
-export { default as createGeometry } from './createGeometry';
-export * from './blending';
-export * from './types';
+export { default as GLCanvas } from './GLCanvas.js';
+export { default as ShaderProgram } from './ShaderProgram.js';
+export { default as clipspaceScreenTri } from './clipspaceScreenTri.js';
+export { default as createTexture } from './createTexture.js';
+export { default as createFBO } from './createFBO.js';
+export { default as createGeometry } from './createGeometry.js';
+export * from './blending.js';
+export * from './types.js';

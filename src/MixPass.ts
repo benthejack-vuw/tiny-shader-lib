@@ -1,10 +1,10 @@
-import {crossfadeFrag, passThroughVert} from "./shaders";
-import {Renderable, RenderOpts} from "./index";
-import ShaderPass from "./ShaderPass";
-import {clipspaceScreenTri} from "./glBasics";
+import {crossfadeFrag, passThroughVert} from "./shaders/index.js";
+import {Renderable, RenderOpts} from "./index.js";
+import ShaderPass from "./ShaderPass.js";
+import {clipspaceScreenTri} from "./glBasics/index.js";
 import {UniformObject} from "./glBasics/types";
-import {InterpolationFunction, linearInterpolation} from "./InterpolationFunctions";
-import {UpdateFunctions} from "./UpdateFunctions";
+import {InterpolationFunction, linearInterpolation} from "./InterpolationFunctions.js";
+import {UpdateFunctions} from "./UpdateFunctions.js";
 
 export default class MixPass extends UpdateFunctions implements Renderable {
   private _shaderPass: ShaderPass;

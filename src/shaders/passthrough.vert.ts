@@ -1,4 +1,4 @@
-const passthroughVert = () => `  
+const passthroughVert = () => `
     attribute vec3 position;
     attribute vec2 uv;
     

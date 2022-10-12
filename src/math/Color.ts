@@ -1,4 +1,4 @@
-import Vec from "./Vector";
+import Vec from "./Vector.js";
 
 export default class Color extends Vec {
   constructor(...args: (number | string)[]) {

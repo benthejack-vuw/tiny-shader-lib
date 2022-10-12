@@ -1,5 +1,5 @@
-import {Renderable, RenderOpts} from "./index";
-import {UpdateFunctions} from "./UpdateFunctions";
+import {Renderable, RenderOpts} from "./index.js";
+import {UpdateFunctions} from "./UpdateFunctions.js";
 
 export default class ShaderChain extends UpdateFunctions implements Renderable {
   private _outputPass: Renderable;

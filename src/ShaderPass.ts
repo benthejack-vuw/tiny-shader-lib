@@ -6,13 +6,13 @@ import {
   blendFunctions,
   BlendMode,
   UniformValues
-} from "./glBasics/index";
-import {UniformObject, UniformValue} from "./glBasics/types";
-import {FBO} from "./glBasics/createFBO";
-import {Renderable, RenderOpts} from "./index";
-import {passThroughVert, screenTextureFrag} from "./shaders/index";
-import {Color} from "./math/index";
-import {UpdateFunctions} from "./UpdateFunctions";
+} from "./glBasics/index.js";
+import {UniformObject, UniformValue} from "./glBasics/types.js";
+import {FBO} from "./glBasics/createFBO.js";
+import {Renderable, RenderOpts} from "./index.js";
+import {passThroughVert, screenTextureFrag} from "./shaders/index.js";
+import {Color} from "./math/index.js";
+import {UpdateFunctions} from "./UpdateFunctions.js";
 
 interface ShaderPassOpts {
   doubleBuffer?: boolean;

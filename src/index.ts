@@ -1,10 +1,10 @@
-export * from './glBasics/index';
-export * from './shaders/index';
-export * from './InterpolationFunctions';
-export * from './math/index';
-export { default as ShaderPass } from './ShaderPass';
-export { default as MixPass } from './MixPass';
-export { default as ShaderChain } from './ShaderChain';
-export { default as ShaderController } from './ShaderController';
+export * from './glBasics/index.js';
+export * from './shaders/index.js';
+export * from './InterpolationFunctions.js';
+export * from './math/index.js';
+export { default as ShaderPass } from './ShaderPass.js';
+export { default as MixPass } from './MixPass.js';
+export { default as ShaderChain } from './ShaderChain.js';
+export { default as ShaderController } from './ShaderController.js';
 
-export * from './types';
+export * from './types.js';

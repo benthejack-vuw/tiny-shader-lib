@@ -1,8 +1,8 @@
-import ShaderPass from "./ShaderPass";
-import MixPass from "./MixPass";
-import {Renderable, RenderOpts} from "./index";
-import { InterpolationFunction } from "./InterpolationFunctions";
-import {UpdateFunctions} from "./UpdateFunctions";
+import ShaderPass from "./ShaderPass.js";
+import MixPass from "./MixPass.js";
+import {Renderable, RenderOpts} from "./index.js";
+import { InterpolationFunction } from "./InterpolationFunctions.js";
+import {UpdateFunctions} from "./UpdateFunctions.js";
 
 interface RenderablePasses { [key: string]: Renderable };
 interface TransitionPasses { [key: string]: MixPass };

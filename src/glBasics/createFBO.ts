@@ -1,4 +1,4 @@
-import createTexture from './createTexture';
+import createTexture from './createTexture.js';
 
 type FrameBufferBindFn = () => void;
 
