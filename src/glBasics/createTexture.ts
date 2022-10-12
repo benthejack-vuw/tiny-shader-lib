@@ -31,6 +31,7 @@ const createTexture = (gl: WebGLRenderingContext | WebGL2RenderingContext, width
       gl.FLOAT,
       null
     );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
   } else {
     gl.texImage2D(
       gl.TEXTURE_2D,
@@ -43,6 +44,7 @@ const createTexture = (gl: WebGLRenderingContext | WebGL2RenderingContext, width
       gl.UNSIGNED_BYTE,
       null
     );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   }
 
   // set the filtering so we don't need mips
