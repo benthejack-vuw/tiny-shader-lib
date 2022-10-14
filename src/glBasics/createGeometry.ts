@@ -16,28 +16,34 @@ const createGeometry = (gl: WebGLRenderingContext, attributeArrays: AttributeArr
         {
           buffer,
           size: data[0].length,
+          indices: data.length,
         }
       ];
     })
   ) as AttributeBufferObject;
 
   const render = (attribBuffers: AttributeBufferObject, locations: LocationsObject) => {
-    Object.entries(attribBuffers).forEach(([attribName, { buffer, size}]) => {
+    let indicesToRender;
+
+    Object.entries(attribBuffers).forEach(([attribName, { buffer, size, indices}]) => {
       const location = locations[attribName];
       if((location || location === 0) && location != -1) {
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
         gl.enableVertexAttribArray(location);
         gl.vertexAttribPointer(location, size, gl.FLOAT, false, 0, 0 );
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        if(attribName === 'position') {
+          indicesToRender = indices;
+        }
       }
     });
+
+    gl.drawArrays(gl.TRIANGLES, 0, indicesToRender);
   }
 
   return {
     buffers,
     render,
   }
-
 }
 
 export default createGeometry;

@@ -246,18 +246,17 @@ export default class ShaderProgram {
   }
 
   private updateAttributes(buffers: AttributeBufferObject) {
-    Object.entries(buffers).forEach(([attribName, attrib]) => {
+    Object.entries(buffers).forEach(([attribName]) => {
       if(typeof(this._attributeLocations[attribName]) === 'undefined') {
-        this._attributeLocations[attribName] = this._gl.getAttribLocation(this._shaderProgram, 'position');
+        this._attributeLocations[attribName] = this._gl.getAttribLocation(this._shaderProgram, attribName);
       }
     })
   }
 
-  public render(geom: Geometry) {
+  public render(geom: Geometry, ) {
     this.bind();
     this.bindTextures();
     this.updateAttributes(geom.buffers);
-
     geom.render(geom.buffers, this._attributeLocations as LocationsObject);
   }
 

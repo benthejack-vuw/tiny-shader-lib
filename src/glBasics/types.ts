@@ -7,6 +7,7 @@ export type AttributeArrayObject = RequirePosition<{
 export type Attribute = {
   buffer: WebGLBuffer,
   size: number,
+  indices: number,
 };
 
 export type AttributeBufferObject = RequirePosition<{
