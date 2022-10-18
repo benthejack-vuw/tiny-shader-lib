@@ -1,6 +1,6 @@
 {
   "name": "tiny-shader-lib",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "description": "a tiny dependency-free library for creating webGL shader passes. If you need to do more than simply scaffold chained full-screen shaders use threeJS.",
   "type": "module",
   "main": "lib/index.js",
