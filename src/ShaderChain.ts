@@ -1,11 +1,11 @@
-import {Renderable, RenderOpts} from "./index.js";
+import {createFBO, Renderable, RenderOpts} from "./index.js";
 import {UpdateFunctions} from "./UpdateFunctions.js";
 import {FBO} from "./glBasics/createFBO";
 import ShaderPass from "./ShaderPass";
 
 export default class ShaderChain extends UpdateFunctions implements Renderable {
-  private _outputPass: Renderable;
-  private _passes: Renderable[];
+  protected _outputPass: Renderable;
+  protected _passes: Renderable[];
 
   constructor(passes: Renderable[]) {
     super();

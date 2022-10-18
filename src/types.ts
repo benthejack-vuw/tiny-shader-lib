@@ -6,7 +6,7 @@ export interface RenderOpts {
   renderToScreen?: boolean;
   renderTarget?: FBO;
   clear?: boolean;
-  blendPixels?: boolean;
+  linearFilter?: boolean;
   blendMode?: BlendMode;
   geometry?: Geometry;
   clearColor?: Color;

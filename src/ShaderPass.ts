@@ -10,9 +10,9 @@ import {
 import {UniformObject, UniformValue} from "./glBasics/types.js";
 import {FBO} from "./glBasics/createFBO.js";
 import {Renderable, RenderOpts} from "./index.js";
-import {passThroughVert, screenTextureFrag} from "./shaders/index.js";
 import {Color} from "./math/index.js";
 import {UpdateFunctions} from "./UpdateFunctions.js";
+import BufferToScreenProgram from "./BufferToScreenProgram";
 
 type ShaderPassOpts = {
   doubleBuffer?: boolean;
@@ -22,15 +22,13 @@ type ShaderPassOpts = {
 } & Partial<RenderOpts>;
 
 export default class ShaderPass extends UpdateFunctions implements Renderable {
-  private bufferToScreen?: ShaderProgram;
-  private bufferToScreenRect?: Geometry;
-
   private _gl: WebGLRenderingContext;
   private _shaderProgram: ShaderProgram;
   private _geom: Geometry;
   private _frameBuffers?: FBO[];
   private _currentFrameBuffer: number = 0;
   private _opts: ShaderPassOpts;
+  private _bufferToScreen?: BufferToScreenProgram;
 
   constructor(
     gl: WebGLRenderingContext,
@@ -165,7 +163,7 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
       clear,
       clearColor,
       geometry,
-      blendPixels,
+      linearFilter,
       renderTarget
     }: ShaderPassOpts  = {
       ...this._opts,
@@ -188,11 +186,14 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
       this.clear(clearColor);
     }
 
-    (renderTarget ?? this._frameBuffers[this._currentFrameBuffer]).bind();
+    const target = renderTarget || this.currentBuffer;
+
+    this._shaderProgram.setUniform('resolution', [target.size.width, target.size.height]);
+    target.bind();
     this._shaderProgram.render(geometry ?? this._geom);
 
     if(renderToScreen) {
-      this.renderToScreen({blendPixels, clear, clearColor, blendMode, geometry});
+      this.renderToScreen({linearFilter, clear, clearColor, blendMode, geometry});
     }
   }
 
@@ -210,11 +211,13 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
     );
   }
 
-  private renderToScreen({blendPixels = true, clear, clearColor, blendMode, geometry}: RenderOpts) {
+  private renderToScreen({linearFilter = true, clear, clearColor, blendMode}: RenderOpts) {
+    if(!this._bufferToScreen) this._bufferToScreen = new BufferToScreenProgram(this._gl);
+
     const {
       bufferToScreen,
       bufferToScreenRect
-    } = this.bufferToScreenProgram(this._gl);
+    } = this._bufferToScreen.values
 
     const currentTexture = this.outputTexture();
     this._gl.bindTexture(this._gl.TEXTURE_2D, currentTexture);
@@ -223,7 +226,7 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
     this._gl.texParameteri(
       this._gl.TEXTURE_2D,
       this._gl.TEXTURE_MAG_FILTER,
-      blendPixels ? this._gl.LINEAR : this._gl.NEAREST
+      linearFilter ? this._gl.LINEAR : this._gl.NEAREST
     );
 
     this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
@@ -250,35 +253,6 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
       this._gl.TEXTURE_MAG_FILTER,
       bufferBlending
     );
-  }
-
-  private bufferToScreenProgram(gl: WebGLRenderingContext) {
-    if(!this.bufferToScreen) {
-      const uniforms: UniformObject = {
-        map: {
-          type: 'texture2D',
-          value: null,
-        },
-        resolution: {
-          type: 'float2',
-          value: [gl.drawingBufferWidth, gl.drawingBufferHeight]
-        }
-      };
-
-      this.bufferToScreen = new ShaderProgram(
-        gl,
-        passThroughVert(),
-        screenTextureFrag(),
-        uniforms,
-      );
-
-      this.bufferToScreenRect = clipspaceScreenTri(gl);
-    }
-
-    return {
-      bufferToScreen: this.bufferToScreen,
-      bufferToScreenRect: this.bufferToScreenRect,
-    }
   }
 
   public dispose() {
