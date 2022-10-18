@@ -101,6 +101,10 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
     ];
   }
 
+  public get currentBuffer() {
+    return this._frameBuffers[this._currentFrameBuffer];
+  }
+
   private buildFrameBuffers() {
     const { width, height, doubleBuffer } = this._opts;
 
@@ -158,6 +162,7 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
       clearColor,
       geometry,
       blendPixels,
+      renderBuffer
     }: ShaderPassOpts  = {
       ...this._opts,
       ...opts,
@@ -179,7 +184,7 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
       this.clear(clearColor);
     }
 
-    this._frameBuffers[this._currentFrameBuffer].bind();
+    (renderBuffer ?? this._frameBuffers[this._currentFrameBuffer]).bind();
     this._shaderProgram.render(geometry ?? this._geom);
 
     if(renderToScreen) {

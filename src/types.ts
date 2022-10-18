@@ -1,8 +1,10 @@
 import { BlendMode, Geometry } from "./glBasics/index";
 import { Color } from "./math";
+import { FBO } from "./glBasics/createFBO";
 
 export interface RenderOpts {
   renderToScreen?: boolean;
+  renderBuffer?: FBO;
   clear?: boolean;
   blendPixels?: boolean;
   blendMode?: BlendMode;
