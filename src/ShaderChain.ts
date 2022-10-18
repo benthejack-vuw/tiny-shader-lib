@@ -1,5 +1,7 @@
 import {Renderable, RenderOpts} from "./index.js";
 import {UpdateFunctions} from "./UpdateFunctions.js";
+import {FBO} from "./glBasics/createFBO";
+import ShaderPass from "./ShaderPass";
 
 export default class ShaderChain extends UpdateFunctions implements Renderable {
   private _outputPass: Renderable;
@@ -30,9 +32,24 @@ export default class ShaderChain extends UpdateFunctions implements Renderable {
     this._passes.forEach(
       (pass) => pass.render({
         ...opts,
-        renderToScreen: opts?.renderToScreen && pass === this._outputPass
+        renderToScreen: (opts?.renderToScreen && pass === this._outputPass) || ((pass as ShaderPass).renderOpts?.renderToScreen)
       })
     );
+  }
+
+  public renderTo(target: FBO, opts: RenderOpts = {}) {
+    this.update();
+
+    this.render({
+      ...opts,
+      renderToScreen: false,
+    });
+
+    this._outputPass.render({
+      ...opts,
+      renderTarget: target,
+      renderToScreen: false,
+    });
   }
 
   public outputTexture() {

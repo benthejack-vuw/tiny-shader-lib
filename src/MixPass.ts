@@ -5,6 +5,7 @@ import {clipspaceScreenTri} from "./glBasics/index.js";
 import {UniformObject} from "./glBasics/types";
 import {InterpolationFunction, linearInterpolation} from "./InterpolationFunctions.js";
 import {UpdateFunctions} from "./UpdateFunctions.js";
+import {FBO} from "./glBasics/createFBO";
 
 export default class MixPass extends UpdateFunctions implements Renderable {
   private _shaderPass: ShaderPass;
@@ -71,6 +72,13 @@ export default class MixPass extends UpdateFunctions implements Renderable {
       this._endTime = -1;
       this._onComplete?.();
     }
+  }
+
+  public renderTo(target: FBO, opts?: RenderOpts) {
+    this.render({
+      ...opts,
+      renderTarget: target,
+    })
   }
 
   public outputTexture(): WebGLTexture {

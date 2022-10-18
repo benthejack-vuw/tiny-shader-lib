@@ -101,6 +101,10 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
     ];
   }
 
+  public get renderOpts() {
+    return this._opts;
+  }
+
   public get currentBuffer() {
     return this._frameBuffers[this._currentFrameBuffer];
   }
@@ -162,7 +166,7 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
       clearColor,
       geometry,
       blendPixels,
-      renderBuffer
+      renderTarget
     }: ShaderPassOpts  = {
       ...this._opts,
       ...opts,
@@ -184,12 +188,16 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
       this.clear(clearColor);
     }
 
-    (renderBuffer ?? this._frameBuffers[this._currentFrameBuffer]).bind();
+    (renderTarget ?? this._frameBuffers[this._currentFrameBuffer]).bind();
     this._shaderProgram.render(geometry ?? this._geom);
 
     if(renderToScreen) {
       this.renderToScreen({blendPixels, clear, clearColor, blendMode, geometry});
     }
+  }
+
+  public renderTo(target: FBO, opts?: RenderOpts) {
+    this.render({...opts, renderTarget: target});
   }
 
   public renderToScreenAtCanvasResolution() {

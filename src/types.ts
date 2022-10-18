@@ -4,7 +4,7 @@ import { FBO } from "./glBasics/createFBO";
 
 export interface RenderOpts {
   renderToScreen?: boolean;
-  renderBuffer?: FBO;
+  renderTarget?: FBO;
   clear?: boolean;
   blendPixels?: boolean;
   blendMode?: BlendMode;
@@ -14,6 +14,7 @@ export interface RenderOpts {
 
 export interface Renderable {
   render: (opts?: RenderOpts) => void;
+  renderTo: (target: FBO, opts?: RenderOpts) => void;
   outputTexture(): WebGLTexture;
   dispose(): void;
   addUpdateFunction(fn: () => void): void;

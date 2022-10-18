@@ -3,6 +3,7 @@ import MixPass from "./MixPass.js";
 import {Renderable, RenderOpts} from "./index.js";
 import { InterpolationFunction } from "./InterpolationFunctions.js";
 import {UpdateFunctions} from "./UpdateFunctions.js";
+import {FBO} from "./glBasics/createFBO";
 
 interface RenderablePasses { [key: string]: Renderable };
 interface TransitionPasses { [key: string]: MixPass };
@@ -65,6 +66,10 @@ export default class ShaderController extends UpdateFunctions implements Rendera
 
   public render(opts?: RenderOpts) {
     this._currentPass.render(opts);
+  }
+
+  public renderTo(target: FBO, opts: RenderOpts) {
+    this._currentPass.renderTo(target, opts);
   }
 
   public outputTexture(): WebGLTexture {
