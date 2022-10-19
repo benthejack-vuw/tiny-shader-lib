@@ -59,7 +59,7 @@ export default class RenderBuffer extends UpdateFunctions implements Renderable 
         linearFilter ? this._gl.LINEAR : this._gl.NEAREST
       );
 
-      this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, target);
+      this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, target?.frameBuffer ?? null);
       this._gl.viewport(
         0,
         0,
