@@ -1,9 +1,9 @@
-import {FBO} from "./glBasics/createFBO";
-import {blendFunctions, BlendMode, createFBO} from "./glBasics/index";
+import {FBO} from "./glBasics/createFBO.js";
+import {blendFunctions, BlendMode, createFBO} from "./glBasics/index.js";
 import {Renderable, RenderOpts} from "./types";
-import BufferToScreenProgram from "./BufferToScreenProgram";
-import {UpdateFunctions} from "./UpdateFunctions";
-import {Color} from "./math";
+import BufferToScreenProgram from "./BufferToScreenProgram.js";
+import {UpdateFunctions} from "./UpdateFunctions.js";
+import {Color} from "./math/index.js";
 
 export default class RenderBuffer extends UpdateFunctions implements Renderable {
   private _gl: WebGLRenderingContext;

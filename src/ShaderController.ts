@@ -3,7 +3,7 @@ import MixPass from "./MixPass.js";
 import {Renderable, RenderOpts} from "./index.js";
 import { InterpolationFunction } from "./InterpolationFunctions.js";
 import {UpdateFunctions} from "./UpdateFunctions.js";
-import {FBO} from "./glBasics/createFBO";
+import {FBO} from "./glBasics/createFBO.js";
 
 interface RenderablePasses { [key: string]: Renderable };
 interface TransitionPasses { [key: string]: MixPass };

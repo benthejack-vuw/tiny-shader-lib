@@ -1,5 +1,5 @@
-import {clipspaceScreenTri, Geometry, ShaderProgram, UniformObject} from "./glBasics";
-import {passThroughVert, screenTextureFrag} from "./shaders";
+import {clipspaceScreenTri, Geometry, ShaderProgram, UniformObject} from "./glBasics/index.js";
+import {passThroughVert, screenTextureFrag} from "./shaders/index.js";
 
 class BufferToScreenProgram {
   private bufferToScreen?: ShaderProgram;

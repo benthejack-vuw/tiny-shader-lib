@@ -12,7 +12,7 @@ import {FBO} from "./glBasics/createFBO.js";
 import {Renderable, RenderOpts} from "./index.js";
 import {Color} from "./math/index.js";
 import {UpdateFunctions} from "./UpdateFunctions.js";
-import BufferToScreenProgram from "./BufferToScreenProgram";
+import BufferToScreenProgram from "./BufferToScreenProgram.js";
 
 type ShaderPassOpts = {
   doubleBuffer?: boolean;

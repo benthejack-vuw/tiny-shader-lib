@@ -1,5 +1,5 @@
 import { BlendMode, Geometry } from "./glBasics/index";
-import { Color } from "./math";
+import { Color } from "./math/index";
 import { FBO } from "./glBasics/createFBO";
 
 export interface RenderOpts {

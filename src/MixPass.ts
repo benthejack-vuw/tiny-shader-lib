@@ -5,7 +5,7 @@ import {clipspaceScreenTri} from "./glBasics/index.js";
 import {UniformObject} from "./glBasics/types";
 import {InterpolationFunction, linearInterpolation} from "./InterpolationFunctions.js";
 import {UpdateFunctions} from "./UpdateFunctions.js";
-import {FBO} from "./glBasics/createFBO";
+import {FBO} from "./glBasics/createFBO.js";
 
 export default class MixPass extends UpdateFunctions implements Renderable {
   private _shaderPass: ShaderPass;
