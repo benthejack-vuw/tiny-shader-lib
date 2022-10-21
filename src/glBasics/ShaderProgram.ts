@@ -101,7 +101,11 @@ export default class ShaderProgram {
       return shader;
     }
 
-    console.error(this._gl.getShaderInfoLog(shader));
+    console.error(
+      this._gl.getShaderInfoLog(shader),
+      source.split('\n').map((line, index) => `${index + 1}. ${line}`).join('\n')
+    );
+
     this._gl.deleteShader(shader);
   }
 
