@@ -1,5 +1,5 @@
 export { default as GLCanvas } from './GLCanvas.js';
-export { default as ShaderProgram } from './ShaderProgram.js';
+export { default as ShaderProgram, getUniformType } from './ShaderProgram.js';
 export { default as clipspaceScreenTri } from './clipspaceScreenTri.js';
 export { default as createTexture } from './createTexture.js';
 export { default as createFBO } from './createFBO.js';

@@ -25,7 +25,7 @@ export default class ShaderController extends UpdateFunctions implements Rendera
     this._currentPass = Object.values(renderablePasses)[0];
   }
 
-  public addPass(name: string, shaderPass: ShaderPass) {
+  public addPass(name: string, shaderPass: Renderable) {
     this._passes[name] = shaderPass;
   }
 

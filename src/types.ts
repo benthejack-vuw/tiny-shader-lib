@@ -20,3 +20,5 @@ export interface Renderable {
   addUpdateFunction(fn: () => void): void;
   removeUpdateFunction(fn: () => void): void;
 }
+
+export { ShaderPassOpts } from './ShaderPass';

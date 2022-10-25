@@ -14,6 +14,7 @@ import {
   AttributeBufferObject,
   LocationsObject, UniformValues
 } from "./types";
+import {createTexture} from "./index";
 
 type UniformFunctions = {
   [key in UniformType]: string
@@ -47,12 +48,28 @@ function isFloatListUniform(type: UniformType){
   return type === 'floatv' || type === 'float2v' || type === 'float3v' || type === 'float4v';
 }
 
-function isListUniform(type: UniformType){
+function isListUniform(type: UniformType) {
   return isIntegerListUniform(type) || isFloatListUniform(type);
 }
 
 function convertArrayToData({ value, type }: { value: number[][], type: ListUniformType }){
   return value.flat();
+}
+
+export function getUniformType(value?: UniformValue): UniformType {
+  if(typeof value === 'undefined') return 'float';
+
+  if(value instanceof WebGLTexture) return 'texture2D';
+
+  const nonTexValue = value as (number | number[] | number[][]);
+
+  if(typeof nonTexValue === 'number') return 'float';
+
+  if (typeof nonTexValue[0] === 'number') {
+    return 'floatv';
+  }
+
+  return `float${nonTexValue[0].length}v` as UniformType;
 }
 
 function listData({ value, type }: { value: UniformValue, type: UniformType }) {
@@ -94,6 +111,7 @@ export default class ShaderProgram {
 
   private createShader(type: number, source: string) {
     const shader = this._gl.createShader(type);
+
     this._gl.shaderSource(shader, source);
     this._gl.compileShader(shader);
     var success = this._gl.getShaderParameter(shader, this._gl.COMPILE_STATUS);
@@ -201,21 +219,24 @@ export default class ShaderProgram {
     }
 
     const {type, value, location, data} = this._uniforms[uniformName];
-    if(type === 'texture2D') {
+
+    const uniformType = type || getUniformType(value);
+
+    if(uniformType === 'texture2D') {
       // we update and bind the textures separately in bindTextures();
       return;
     }
 
     this.bind();
 
-    if(isListUniform(type)) {
-      const setUniform =  this._gl[uniformFunctions[type]] as GLListUniformFunc;
+    if(isListUniform(uniformType)) {
+      const setUniform =  this._gl[uniformFunctions[uniformType]] as GLListUniformFunc;
       setUniform.call(this._gl, location, data);
       return;
     }
 
     const args = Array.isArray(value) ? value as number[] : [value] as number[];
-    const setUniform =  this._gl[uniformFunctions[type]] as GLVecUniformFunc;
+    const setUniform =  this._gl[uniformFunctions[uniformType]] as GLVecUniformFunc;
     setUniform.call(this._gl, location, ...args);
   }
 

@@ -14,7 +14,7 @@ import {Color} from "./math/index.js";
 import {UpdateFunctions} from "./UpdateFunctions.js";
 import BufferToScreenProgram from "./BufferToScreenProgram.js";
 
-type ShaderPassOpts = {
+export type ShaderPassOpts = {
   doubleBuffer?: boolean;
   width?: number;
   height?: number;
@@ -187,7 +187,6 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
     }
 
     const target = renderTarget || this.currentBuffer;
-
     this._shaderProgram.setUniform('resolution', [target.size.width, target.size.height]);
     target.bind();
     this._shaderProgram.render(geometry ?? this._geom);
