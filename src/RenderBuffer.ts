@@ -11,6 +11,7 @@ export default class RenderBuffer extends UpdateFunctions implements Renderable 
   private _bufferToScreen: BufferToScreenProgram;
   private _width: number;
   private _height: number;
+  private _disposeFunctions: Array<() => void> = [];
 
   constructor(gl: WebGLRenderingContext, width?: number, height?: number) {
     super();
@@ -96,7 +97,12 @@ export default class RenderBuffer extends UpdateFunctions implements Renderable 
     return this._buffer.texture;
   }
 
+  public addDisposeFunction(fn: () => void) {
+    this._disposeFunctions.push(fn);
+  }
+
   public dispose() {
+    this._disposeFunctions.forEach((fn) => fn());
     this._buffer.destroy();
   }
 }
