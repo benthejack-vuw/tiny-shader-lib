@@ -52,6 +52,10 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
         type: 'float2',
         value: this.size
       },
+      glResolution: {
+        type: 'float2',
+        value: [gl.drawingBufferWidth, gl.drawingBufferHeight]
+      },
       //add backBuffer uniform if the doubleBuffer parameter is set
       ...(
       opts.doubleBuffer
@@ -188,6 +192,8 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
 
     const target = renderTarget || this.currentBuffer;
     this._shaderProgram.setUniform('resolution', [target.size.width, target.size.height]);
+    this._shaderProgram.setUniform('glResolution', [this._gl.drawingBufferWidth, this._gl.drawingBufferHeight]);
+
     target.bind();
     this._shaderProgram.render(geometry ?? this._geom);
 

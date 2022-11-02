@@ -14,6 +14,10 @@ class BufferToScreenProgram {
       resolution: {
         type: 'float2',
         value: [gl.drawingBufferWidth, gl.drawingBufferHeight]
+      },
+      glResolution: {
+        type: 'float2',
+        value: [gl.drawingBufferWidth, gl.drawingBufferHeight]
       }
     };
 

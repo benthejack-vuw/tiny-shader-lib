@@ -81,7 +81,8 @@ export default class RenderBuffer extends UpdateFunctions implements Renderable 
 
       bufferToScreen.bind();
       bufferToScreen.setUniform('map', this._buffer.texture);
-      bufferToScreen.setUniform('resolution', [this._gl.drawingBufferWidth, this._gl.drawingBufferHeight]);
+      bufferToScreen.setUniform('resolution', [target?.size.width || this._gl.drawingBufferWidth, target?.size.height || this._gl.drawingBufferHeight]);
+      bufferToScreen.setUniform('glResolution', [this._gl.drawingBufferWidth, this._gl.drawingBufferHeight]);
       blendFunctions[blendMode ?? BlendMode.NORMAL](this._gl);
 
       bufferToScreen.render(bufferToScreenRect);
