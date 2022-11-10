@@ -12,3 +12,5 @@ const loadFloatTextureExtensions = (gl: WebGLRenderingContext) => {
     return;
   }
 }
+
+export default loadFloatTextureExtensions;

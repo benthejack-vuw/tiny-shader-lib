@@ -1,3 +1,5 @@
+import loadFloatTextureExtensions from './loadFloatTextureExtensions';
+
 type DataItem = number | null | undefined;
 
 const createDataTexture = (gl: WebGLRenderingContext, data: DataItem[][] | DataItem[], width: number, height: number, format?: number) => {
