@@ -44,7 +44,7 @@ export default class MixPass extends UpdateFunctions implements Renderable {
     }
     this._fromPass = shaderPassFrom;
     this._toPass = shaderPassTo;
-    this._shaderPass.linkPassToUniform(shaderPassFrom, 'from');
+ this._shaderPass.linkPassToUniform(shaderPassFrom, 'from');
     this._shaderPass.linkPassToUniform(shaderPassTo, 'to');
     this._startTime = Date.now();
     this._endTime = this._startTime + duration;
