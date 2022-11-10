@@ -1,4 +1,4 @@
-import loadFloatTextureExtensions from "./loadFloatTextureExtensions";
+import loadFloatTextureExtensions from "./loadFloatTextureExtensions.js";
 
 const createTexture = (gl: WebGLRenderingContext | WebGL2RenderingContext, width?: number, height?: number, textureType?: number) => {
   const texture = gl.createTexture();

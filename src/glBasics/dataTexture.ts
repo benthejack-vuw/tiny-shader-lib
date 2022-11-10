@@ -1,4 +1,4 @@
-import loadFloatTextureExtensions from './loadFloatTextureExtensions';
+import loadFloatTextureExtensions from './loadFloatTextureExtensions.js';
 
 type DataItem = number | null | undefined;
 
