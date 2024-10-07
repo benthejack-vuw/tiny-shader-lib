@@ -1,7 +1,6 @@
 import {
   blendFunctions,
   BlendMode,
-  clipspaceScreenTri,
   createFBO,
   Geometry,
   ShaderProgram,
@@ -86,7 +85,14 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
       );
     });
 
-    resizeObserver.observe(gl.canvas);
+    resizeObserver.observe(gl.canvas as HTMLCanvasElement);
+  }
+
+  public resize(width: number, height: number) {
+        this._frameBuffers.forEach((fb) => fb.destroy());
+        this.buildFrameBuffers();
+        this._opts.width = width;
+        this._opts.height = height;
   }
 
   public setBufferTextureParam(parameter: GLenum, value: GLint) {
@@ -98,8 +104,8 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
 
   public get size() {
     return [
-      Math.ceil(this._opts.width || this._gl.canvas.clientWidth),
-      Math.ceil(this._opts.height || this._gl.canvas.clientHeight)
+      Math.ceil(this._opts.width || (this._gl.canvas as HTMLCanvasElement).clientWidth),
+      Math.ceil(this._opts.height || (this._gl.canvas as HTMLCanvasElement).clientHeight)
     ];
   }
 
