@@ -90,9 +90,9 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
 
   public resize(width: number, height: number) {
         this._frameBuffers.forEach((fb) => fb.destroy());
-        this.buildFrameBuffers();
         this._opts.width = width;
         this._opts.height = height;
+        this.buildFrameBuffers();
   }
 
   public setBufferTextureParam(parameter: GLenum, value: GLint) {
