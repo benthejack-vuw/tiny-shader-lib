@@ -1,20 +1,13 @@
 import {
-  GeometryRenderFunction,
   UniformObject,
   UniformType,
-  GLUniformFunc,
   GLListUniformFunc,
-  IntegerListUniformType,
-  FloatListUniformType,
-  ListUniformType,
   GLVecUniformFunc,
   UniformValue,
   Geometry,
-  Attribute,
   AttributeBufferObject,
   LocationsObject, UniformValues
 } from "./types";
-import {createTexture} from "./index";
 
 type UniformFunctions = {
   [key in UniformType]: string
@@ -52,10 +45,6 @@ function isListUniform(type: UniformType) {
   return isIntegerListUniform(type) || isFloatListUniform(type);
 }
 
-function convertArrayToData({ value, type }: { value: number[][], type: ListUniformType }){
-  return value.flat();
-}
-
 export function getUniformType(value?: UniformValue): UniformType {
   if(typeof value === 'undefined') return 'float';
 
@@ -84,7 +73,6 @@ export default class ShaderProgram {
   private _shaderProgram: WebGLProgram;
   private _uniforms: UniformObject;
   private _attributeLocations: { [key: string]: number };
-  private _updateUniforms: boolean;
   private _deleted: boolean = false;
 
   constructor(gl: WebGLRenderingContext, vertex: string, fragment: string, uniforms: UniformObject = {}) {
@@ -101,8 +89,6 @@ export default class ShaderProgram {
           }]
         ))
     );
-
-    this._updateUniforms = true;
 
     this._attributeLocations = {};
 
@@ -128,6 +114,7 @@ export default class ShaderProgram {
   }
 
   private buildProgram(vertex: string, fragment: string) {
+    const isWebGL2 = this._gl instanceof WebGL2RenderingContext;
 
     //add defines to make webGL1 shaders work in a webGL2 context
     const globalDefines =
@@ -146,17 +133,18 @@ export default class ShaderProgram {
     #define gl_FragColor pc_fragColor
     `;
 
-    const vert = globalDefines + vertexDefines + vertex;
+    const vertWebGL2Defines = isWebGL2 ? globalDefines + vertexDefines : ""; 
+    const vert = vertWebGL2Defines + vertex;
     const vertexShader = this.createShader(this._gl.VERTEX_SHADER, vert);
 
     // make sure the fragment shader has a default precision
     const fragHasPrecision = !!fragment.match(/precision [a-z]+ float;/);
     const fragPrecision = fragHasPrecision ? '' : 'precision mediump float;\n';
-
+    const fragWebGL2Defines = isWebGL2 ? globalDefines + fragPrecision + fragDefines : fragPrecision;
 
     const fragmentShader = this.createShader(
       this._gl.FRAGMENT_SHADER,
-      globalDefines + fragPrecision + fragDefines + fragment
+      fragWebGL2Defines + fragment
     );
 
     if(!vertexShader || !fragmentShader) {
@@ -242,7 +230,6 @@ export default class ShaderProgram {
 
   private updateUniforms() {
     Object.keys(this._uniforms).forEach((name) => this.updateUniform(name));
-    this._updateUniforms = false;
   }
 
   public get positionLocation() {
@@ -254,9 +241,9 @@ export default class ShaderProgram {
   }
 
   private bindTextures() {
-    Object.entries(this._uniforms)
-      .filter(([key, uniform]) => uniform.type === 'texture2D')
-      .forEach(([key, uniform], idx) => {
+    Object.values(this._uniforms)
+      .filter((uniform) => uniform.type === 'texture2D')
+      .forEach((uniform, idx) => {
         this._gl.activeTexture(this._gl.TEXTURE0 + idx);
         this._gl.bindTexture(this._gl.TEXTURE_2D, uniform.value);
         this._gl.uniform1i(uniform.location, idx);
