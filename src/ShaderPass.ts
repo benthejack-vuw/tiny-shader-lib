@@ -88,13 +88,6 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
     resizeObserver.observe(gl.canvas as HTMLCanvasElement);
   }
 
-  public resize(width: number, height: number) {
-        this._frameBuffers.forEach((fb) => fb.destroy());
-        this._opts.width = width;
-        this._opts.height = height;
-        this.buildFrameBuffers();
-  }
-
   public setBufferTextureParam(parameter: GLenum, value: GLint) {
     this._frameBuffers.forEach((fbo) => {
       this._gl.bindTexture(this._gl.TEXTURE_2D, fbo.texture);
@@ -129,7 +122,8 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
   }
 
   public outputTexture = () => {
-    return this._frameBuffers[this._currentFrameBuffer].texture;
+    // get the last rendered buffer
+    return this._frameBuffers[(this._currentFrameBuffer + 1) % this._frameBuffers.length].texture;
   }
 
   public linkPassToUniform( shaderPass: Renderable, uniformName: string ) {
@@ -182,14 +176,13 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
 
     this.update();
 
-    if(this._opts.doubleBuffer) {
-      this._shaderProgram.setUniform('backBuffer', this._frameBuffers[this._currentFrameBuffer].texture);
-      this._currentFrameBuffer = (this._currentFrameBuffer + 1) % 2;
-    }
-
     // set blend mode
     if(!renderToScreen) {
-      blendFunctions[blendMode ?? BlendMode.NORMAL](this._gl);
+      if(typeof blendMode === 'function') {
+        blendMode();
+      } else {
+        blendFunctions[blendMode ?? BlendMode.NORMAL](this._gl);
+      }
     }
 
     if(clear) {
@@ -202,6 +195,12 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
 
     target.bind();
     this._shaderProgram.render(geometry ?? this._geom);
+
+    // swap buffers if double buffering
+    if(this._opts.doubleBuffer) {
+      this._shaderProgram.setUniform('backBuffer', this._frameBuffers[this._currentFrameBuffer].texture);
+      this._currentFrameBuffer = (this._currentFrameBuffer + 1) % 2;
+    }
 
     if(renderToScreen) {
       this.renderToScreen({linearFilter, clear, clearColor, blendMode, geometry});
@@ -256,7 +255,11 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
     bufferToScreen.bind();
     bufferToScreen.setUniform('map', currentTexture);
     bufferToScreen.setUniform('resolution', [this._gl.drawingBufferWidth, this._gl.drawingBufferHeight]);
-    blendFunctions[blendMode ?? BlendMode.NORMAL](this._gl);
+    if(typeof blendMode === 'function') {
+      blendMode();
+    } else {
+      blendFunctions[blendMode ?? BlendMode.NORMAL](this._gl);
+    }
     bufferToScreen.render(bufferToScreenRect);
 
     this._gl.texParameteri(

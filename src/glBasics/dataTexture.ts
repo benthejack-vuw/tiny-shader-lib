@@ -16,7 +16,6 @@ const createDataTexture = (gl: WebGLRenderingContext, data: DataItem[][] | DataI
 
   if(Object.keys(floatFormats).includes(format.toString())) {
     loadFloatTextureExtensions(gl);
-    console.log('Building Float Data Image')
 
     const dataBuffer = new Float32Array(data.flat().map((num) => num ?? 0));
 
@@ -33,8 +32,6 @@ const createDataTexture = (gl: WebGLRenderingContext, data: DataItem[][] | DataI
     );
   } else {
     const dataBuffer = new Uint8Array(data.flat().map((num) => num ?? 0));
-
-    console.log('Building Uint8 Data Image')
 
     gl.texImage2D(
       gl.TEXTURE_2D,

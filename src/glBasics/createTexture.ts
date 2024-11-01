@@ -9,7 +9,6 @@ const createTexture = (gl: WebGLRenderingContext | WebGL2RenderingContext, width
 
   if(textureType === gl.FLOAT) {
     loadFloatTextureExtensions(gl);
-
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,

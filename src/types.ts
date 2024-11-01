@@ -7,7 +7,7 @@ export interface RenderOpts {
   renderTarget?: FBO;
   clear?: boolean;
   linearFilter?: boolean;
-  blendMode?: BlendMode;
+  blendMode?: BlendMode | (() => void);
   geometry?: Geometry;
   clearColor?: Color;
 }

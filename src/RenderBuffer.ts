@@ -42,7 +42,7 @@ export default class RenderBuffer extends UpdateFunctions implements Renderable 
     this.renderTo( null, opts);
   }
 
-  public renderTo(target, {linearFilter = true, clear, clearColor, blendMode}: RenderOpts) {
+  public renderTo(target: FBO, {linearFilter = true, clear, clearColor, blendMode}: RenderOpts) {
     this.update();
 
     if(!this._bufferToScreen) this._bufferToScreen = new BufferToScreenProgram(this._gl);
@@ -83,7 +83,11 @@ export default class RenderBuffer extends UpdateFunctions implements Renderable 
       bufferToScreen.setUniform('map', this._buffer.texture);
       bufferToScreen.setUniform('resolution', [target?.size.width || this._gl.drawingBufferWidth, target?.size.height || this._gl.drawingBufferHeight]);
       bufferToScreen.setUniform('glResolution', [this._gl.drawingBufferWidth, this._gl.drawingBufferHeight]);
-      blendFunctions[blendMode ?? BlendMode.NORMAL](this._gl);
+      if(typeof blendMode === 'function') {
+        blendMode();
+      } else {
+        blendFunctions[blendMode ?? BlendMode.NORMAL](this._gl);
+      }
 
       bufferToScreen.render(bufferToScreenRect);
 

@@ -5,6 +5,7 @@ export { default as createTexture } from './createTexture.js';
 export { default as createFBO } from './createFBO.js';
 export { default as createGeometry } from './createGeometry.js';
 export { default as createDataTexture } from './dataTexture.js';
-export { default as loadTexture } from './loadTexture';
+export { default as loadTexture } from './loadTexture.js';
+export { default as canvasTexture } from './canvasTexture.js'
 export * from './blending.js';
 export * from './types.js';
