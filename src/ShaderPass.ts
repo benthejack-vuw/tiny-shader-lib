@@ -72,20 +72,6 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
     this._geom = geometry;
 
     this.buildFrameBuffers();
-
-    // if the webGL canvas is resized, update the resolution and recreate the frame buffers if need be
-    const resizeObserver = new ResizeObserver(() => {
-      if(!this._opts.width || !this._opts.height) {
-        this._frameBuffers.forEach((fb) => fb.destroy());
-        this.buildFrameBuffers();
-      }
-      this._shaderProgram.setUniform(
-        'resolution',
-        this.size,
-      );
-    });
-
-    resizeObserver.observe(gl.canvas as HTMLCanvasElement);
   }
 
   public setBufferTextureParam(parameter: GLenum, value: GLint) {
