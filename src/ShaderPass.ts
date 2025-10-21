@@ -81,6 +81,8 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
       'resolution',
       this.size,
     );
+    this._frameBuffers.forEach((fb) => fb.destroy());
+    this.buildFrameBuffers();
   }
 
   public setBufferTextureParam(parameter: GLenum, value: GLint) {
