@@ -74,6 +74,15 @@ export default class ShaderPass extends UpdateFunctions implements Renderable {
     this.buildFrameBuffers();
   }
 
+  public resize(width: number, height: number) {
+    this._opts.width = width;
+    this._opts.height = height;
+    this._shaderProgram.setUniform(
+      'resolution',
+      this.size,
+    );
+  }
+
   public setBufferTextureParam(parameter: GLenum, value: GLint) {
     this._frameBuffers.forEach((fbo) => {
       this._gl.bindTexture(this._gl.TEXTURE_2D, fbo.texture);

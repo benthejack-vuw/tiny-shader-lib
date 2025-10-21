@@ -6,7 +6,7 @@ type GLCanvasOpts = {
 
 export default class GLCanvas {
   private _gl: WebGLRenderingContext;
-  private _timeout: number;
+  private _timeout: NodeJS.Timeout;
 
   constructor({canvasElement, webGLVersion = 'webgl2', webGLOpts}: GLCanvasOpts) {
     const canvas = typeof(canvasElement) === "string"
